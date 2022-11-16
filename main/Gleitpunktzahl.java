@@ -374,19 +374,26 @@ public class Gleitpunktzahl {
          * TODO: Achten Sie auf Sonderfaelle!
          */
         Gleitpunktzahl a = new Gleitpunktzahl(this);
+        Gleitpunktzahl b = new Gleitpunktzahl(r);
 
-        // Inf + Inf = Inf
-        if(a.isInfinite() && !a.vorzeichen && r.isInfinite()) {
-            a.setNaN();
+        if(a.vorzeichen == b.vorzeichen) {
+            // Inf + Inf = Inf
+            if(a.isInfinite() && r.isInfinite()) {
+                return a;
+            }
+
+
+            denormalisiere(a, b);
+            a.mantisse += b.mantisse;
+            b.normalisiere();
+            a.normalisiere();
+
             return a;
+        } else {
+            b.vorzeichen = !b.vorzeichen;
+            return a.sub(b);
         }
 
-        denormalisiere(a, r);
-        a.mantisse += r.mantisse;
-        r.normalisiere();
-        a.normalisiere();
-
-        return a;
     }
 
     /**
@@ -402,38 +409,36 @@ public class Gleitpunktzahl {
          */
 
         Gleitpunktzahl a = new Gleitpunktzahl(this);
+        Gleitpunktzahl b = new Gleitpunktzahl(r);
 
-        // Inf - Inf = NaN
-        if(a.isInfinite() && !a.vorzeichen && r.isInfinite()) {
-            a.setNaN();
-            return a;
-        }
+        if(a.vorzeichen == b.vorzeichen) {
+            // Inf - Inf = NaN
+            // -Inf - (-Inf) = NaN
+            if(a.isInfinite() &&  b.isInfinite()) {
+                a.setNaN();
+                return a;
+            }
 
-        // -Inf - Inf = -Inf
-        if(a.isInfinite() && a.vorzeichen && r.isInfinite()) {
-            return a;
-        }
+            if(Math.abs(a.toDouble()) < Math.abs(b.toDouble())) {
+                denormalisiere(a, b);
+                b.mantisse -= a.mantisse;
+                b.normalisiere();
+                b.vorzeichen = !b.vorzeichen;
 
+                return b;
+            }
 
-        // -a - b = -( a + b)
-        // a - (-b) = a + b
-        if((a.vorzeichen && !r.vorzeichen) || (!a.vorzeichen && r.vorzeichen)) {
-            denormalisiere(a, r);
-            a.mantisse += r.mantisse;
-            r.normalisiere();
+            denormalisiere(a, b);
+            a.mantisse -= b.mantisse;
             a.normalisiere();
+
             return a;
+
+        } else {
+            b.vorzeichen = !b.vorzeichen;
+            return a.add(b);
         }
 
-
-        // a - b
-        // -a - (-b) = -( a-b )
-        denormalisiere(a, r);
-        a.mantisse -= r.mantisse;
-        r.normalisiere();
-        a.normalisiere();
-
-        return a;
     }
 
     /**

@@ -15,8 +15,8 @@ public class Testing {
 
     @BeforeEach
     public void init() {
-        number1 = new Gleitpunktzahl(7.0);
-        number2 = new Gleitpunktzahl(-3.0);
+        number1 = new Gleitpunktzahl(-3.0);
+        number2 = new Gleitpunktzahl(7.0);
         number3 = new Gleitpunktzahl(100.5);
         number4 = new Gleitpunktzahl(8.5);
     }
@@ -51,7 +51,7 @@ public class Testing {
     @Test
     public void testSub() {
         number1 = number1.sub(number2);
-        assertEquals(10, number1.toDouble());
+        assertEquals(4, number1.toDouble());
 
         number3 = number3.sub(number4);
         assertEquals(92, number3.toDouble());
