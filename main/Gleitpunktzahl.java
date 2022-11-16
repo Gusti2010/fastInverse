@@ -1,3 +1,5 @@
+package main;
+
 import static java.lang.Integer.toBinaryString;
 
 public class Gleitpunktzahl {

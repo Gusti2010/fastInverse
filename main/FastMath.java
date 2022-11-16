@@ -1,3 +1,5 @@
+package main;
+
 /**
  * @author Christoph Riesinger (riesinge@in.tum.de)
  * @author Jürgen Bräckle (braeckle@in.tum.de)
