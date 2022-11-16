@@ -294,14 +294,13 @@ public class Gleitpunktzahl {
      */
     public void normalisiere() {
         /*
-         * TODO: hier ist die Operation normalisiere zu implementieren.
          * Beachten Sie, dass die Groesse (Anzahl der Bits) des Exponenten
          * und der Mantisse durch sizeExponent bzw. sizeMantisse festgelegt
          * ist.
          * Achten Sie auf Sonderfaelle!
          */
 
-        // Sonderfälle anfangen
+        // Sonderfälle abfangen
         if(isInfinite() || isNull() || isNaN()) {
             return;
         }
@@ -337,9 +336,6 @@ public class Gleitpunktzahl {
      * erweitert. Denormalisieren wird fuer add und sub benoetigt.
      */
     public static void denormalisiere(Gleitpunktzahl a, Gleitpunktzahl b) {
-        /*
-         * TODO: hier ist die Operation denormalisiere zu implementieren.
-         */
 
         // a > b
         if(Math.abs(a.toDouble()) > Math.abs(b.toDouble())) {
@@ -348,8 +344,19 @@ public class Gleitpunktzahl {
                 a.mantisse = a.mantisse << 1;
             }
             while(a.exponent < b.exponent) {
-                a.exponent += a.exponent;
+                a.exponent += 1;
                 a.mantisse = a.mantisse >>> 1;
+            }
+
+        // a <= b
+        } else {
+            while(b.exponent > a.exponent) {
+                b.exponent -= 1;
+                b.mantisse = b.mantisse << 1;
+            }
+            while(b.exponent < a.exponent) {
+                b.exponent += 1;
+                b.mantisse = b.mantisse >>> 1;
             }
         }
 
@@ -363,11 +370,16 @@ public class Gleitpunktzahl {
      */
     public Gleitpunktzahl add(Gleitpunktzahl r) {
         /*
-         * TODO: hier ist die Operation add zu implementieren. Verwenden Sie die
          * Funktionen normalisiere und denormalisiere.
-         * Achten Sie auf Sonderfaelle!
+         * TODO: Achten Sie auf Sonderfaelle!
          */
         Gleitpunktzahl a = new Gleitpunktzahl(this);
+
+        // Inf + Inf = Inf
+        if(a.isInfinite() && !a.vorzeichen && r.isInfinite()) {
+            a.setNaN();
+            return a;
+        }
 
         denormalisiere(a, r);
         a.mantisse += r.mantisse;
@@ -385,13 +397,37 @@ public class Gleitpunktzahl {
      */
     public Gleitpunktzahl sub(Gleitpunktzahl r) {
         /*
-         * TODO: hier ist die Operation sub zu implementieren. Verwenden Sie die
          * Funktionen normalisiere und denormalisiere.
-         * Achten Sie auf Sonderfaelle!
+         * TODO: Achten Sie auf Sonderfaelle!
          */
 
         Gleitpunktzahl a = new Gleitpunktzahl(this);
 
+        // Inf - Inf = NaN
+        if(a.isInfinite() && !a.vorzeichen && r.isInfinite()) {
+            a.setNaN();
+            return a;
+        }
+
+        // -Inf - Inf = -Inf
+        if(a.isInfinite() && a.vorzeichen && r.isInfinite()) {
+            return a;
+        }
+
+
+        // -a - b = -( a + b)
+        // a - (-b) = a + b
+        if((a.vorzeichen && !r.vorzeichen) || (!a.vorzeichen && r.vorzeichen)) {
+            denormalisiere(a, r);
+            a.mantisse += r.mantisse;
+            r.normalisiere();
+            a.normalisiere();
+            return a;
+        }
+
+
+        // a - b
+        // -a - (-b) = -( a-b )
         denormalisiere(a, r);
         a.mantisse -= r.mantisse;
         r.normalisiere();
